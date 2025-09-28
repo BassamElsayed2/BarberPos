@@ -5,11 +5,11 @@ const API_BASE_URL = (() => {
     typeof window !== "undefined" &&
     window.location.hostname === "pos1.ens.eg"
   ) {
-    return "https://pos1.ens.eg/api";
+    return "http://103.195.102.76:4007/api";
   }
   // Check environment variable as fallback
   if (process.env.NODE_ENV === "production") {
-    return "https://pos1.ens.eg/api";
+    return "http://103.195.102.76:4007/api";
   }
   // Default to localhost for development
   return "http://localhost:4007/api";

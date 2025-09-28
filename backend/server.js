@@ -27,6 +27,7 @@ app.use(
       "http://127.0.0.1:5173",
       "https://pos1.ens.eg",
       "https://www.pos1.ens.eg",
+      "http://103.195.102.76:4007",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
