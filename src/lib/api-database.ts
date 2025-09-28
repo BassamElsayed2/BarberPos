@@ -245,7 +245,13 @@ class ApiDatabaseManager {
 
   // Export/Import functionality
   async exportToJSON(): Promise<string> {
-    const data = await this.makeRequest<any>("/utility/export");
+    const data = await this.makeRequest<{
+      categories: Category[];
+      products: Product[];
+      sales: Sale[];
+      employees: Employee[];
+      purchaseInvoices: PurchaseInvoice[];
+    }>("/utility/export");
     return JSON.stringify(data, null, 2);
   }
 

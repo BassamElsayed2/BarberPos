@@ -1,5 +1,5 @@
 const sql = require("mssql");
-require("dotenv").config({ path: "./config.env" });
+require("dotenv").config({ path: "./config.prod.env" });
 
 const config = {
   server: process.env.DB_SERVER,
