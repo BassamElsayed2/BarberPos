@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  allowedHosts: ["pos1.ens.eg"],
+  allowedHosts: ["pos1.ens.eg", "localhost"],
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
   ),
