@@ -8,7 +8,10 @@ import React, {
   useMemo,
 } from "react";
 
-const API_BASE_URL = "https://pos1.ens.eg/api";
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://pos1.ens.eg/api"
+    : "http://localhost:4007/api";
 
 interface User {
   id: string;
