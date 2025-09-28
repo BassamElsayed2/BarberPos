@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  allowedHosts: ["pos1.ens.eg"],
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
   ),
@@ -31,7 +32,7 @@ export default defineConfig(({ mode }) => ({
             "@radix-ui/react-dropdown-menu",
             "@radix-ui/react-select",
             "@radix-ui/react-tabs",
-            "@radix-ui/react-toast"
+            "@radix-ui/react-toast",
           ],
           charts: ["recharts"],
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],

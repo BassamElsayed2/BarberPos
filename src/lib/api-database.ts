@@ -1,8 +1,8 @@
 // API-based database manager for SQL Server backend
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://Pos1.ens.eg/api"
-    : "http://localhost:3001/api";
+    ? "https://pos1.ens.eg/api"
+    : "http://localhost:4006/api";
 
 // Types for our POS system (same as before)
 export interface Category {

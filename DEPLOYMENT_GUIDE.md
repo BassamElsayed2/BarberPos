@@ -81,7 +81,7 @@ The built frontend files will be in the `dist/` directory. Serve these files usi
 
 ```env
 NODE_ENV=production
-VITE_API_URL=https://Pos1.ens.eg/api
+VITE_API_URL=https://pos1.ens.eg/api
 ```
 
 ### Backend (config.prod.env)
@@ -97,7 +97,7 @@ DB_PORT=1433
 DB_ENCRYPT=true
 DB_TRUST_SERVER_CERTIFICATE=true
 FRONTEND_URL=https://Pos1.ens.eg
-API_URL=https://Pos1.ens.eg/api
+API_URL=https://pos1.ens.eg/api
 ```
 
 ## Nginx Configuration Example
@@ -148,7 +148,7 @@ server {
 
 ### Health Check
 
-- Backend health: `https://Pos1.ens.eg/api/health`
+- Backend health: `https://pos1.ens.eg/api/health`
 - Frontend: `https://Pos1.ens.eg`
 
 ### Logs
@@ -167,7 +167,7 @@ server {
 
 ### Testing
 
-1. Test the health endpoint: `curl https://Pos1.ens.eg/api/health`
+1. Test the health endpoint: `curl https://pos1.ens.eg/api/health`
 2. Test the frontend: Open `https://Pos1.ens.eg` in browser
 3. Test API connectivity from frontend
 
