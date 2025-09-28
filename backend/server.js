@@ -14,7 +14,7 @@ const usersRoutes = require("./routes/users");
 const utilityRoutes = require("./routes/utility");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 4007;
 
 // Middleware
 app.use(helmet());
@@ -26,8 +26,11 @@ app.use(
       "http://127.0.0.1:8080",
       "http://127.0.0.1:5173",
       "https://pos1.ens.eg",
+      "https://www.pos1.ens.eg",
     ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(morgan("combined"));

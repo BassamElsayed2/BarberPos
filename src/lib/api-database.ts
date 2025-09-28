@@ -1,8 +1,19 @@
 // API-based database manager for SQL Server backend
-const API_BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://pos1.ens.eg/api"
-    : "http://localhost:4006/api";
+const API_BASE_URL = (() => {
+  // Check if we're running on the production domain
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "pos1.ens.eg"
+  ) {
+    return "https://pos1.ens.eg/api";
+  }
+  // Check environment variable as fallback
+  if (process.env.NODE_ENV === "production") {
+    return "https://pos1.ens.eg/api";
+  }
+  // Default to localhost for development
+  return "http://localhost:4007/api";
+})();
 
 // Types for our POS system (same as before)
 export interface Category {
