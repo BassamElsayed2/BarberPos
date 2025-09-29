@@ -64,13 +64,17 @@ const createTables = async () => {
         id NVARCHAR(50) PRIMARY KEY,
         name NVARCHAR(100) NOT NULL,
         price DECIMAL(10,2) NOT NULL,
-        barcode NVARCHAR(50) UNIQUE,
+        barcode NVARCHAR(50),
         category_id NVARCHAR(50),
         stock INT DEFAULT 0,
         created_at DATETIME2 DEFAULT GETDATE(),
         updated_at DATETIME2 DEFAULT GETDATE(),
         FOREIGN KEY (category_id) REFERENCES categories (id)
       );
+
+      -- Create filtered unique index for barcode (allows multiple NULLs)
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_products_barcode_unique' AND object_id = OBJECT_ID('products'))
+      CREATE UNIQUE INDEX IX_products_barcode_unique ON products (barcode) WHERE barcode IS NOT NULL;
 
       -- Employees table
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='employees' AND xtype='U')
@@ -152,6 +156,9 @@ const createTables = async () => {
 
     await pool.request().query(createTablesSQL);
 
+    // Handle migration for existing databases with old barcode constraint
+    await migrateBarcodeConstraint();
+
     // Insert default data
     await insertDefaultData();
 
@@ -159,6 +166,39 @@ const createTables = async () => {
   } catch (error) {
     console.error("❌ Error creating tables:", error.message);
     throw error;
+  }
+};
+
+const migrateBarcodeConstraint = async () => {
+  try {
+    // Check if the old unique constraint exists and drop it
+    const constraintCheck = await pool.request().query(`
+      SELECT CONSTRAINT_NAME 
+      FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+      WHERE TABLE_NAME = 'products' 
+      AND CONSTRAINT_TYPE = 'UNIQUE' 
+      AND CONSTRAINT_NAME LIKE '%barcode%'
+    `);
+
+    if (constraintCheck.recordset.length > 0) {
+      console.log("🔄 Migrating barcode constraint to allow multiple NULLs...");
+
+      // Drop the old unique constraint
+      for (const constraint of constraintCheck.recordset) {
+        await pool.request().query(`
+          ALTER TABLE products DROP CONSTRAINT ${constraint.CONSTRAINT_NAME}
+        `);
+        console.log(`✅ Dropped old constraint: ${constraint.CONSTRAINT_NAME}`);
+      }
+
+      // Create the new filtered unique index
+      await pool.request().query(`
+        CREATE UNIQUE INDEX IX_products_barcode_unique ON products (barcode) WHERE barcode IS NOT NULL
+      `);
+      console.log("✅ Created new filtered unique index for barcode");
+    }
+  } catch (error) {
+    console.log("ℹ️  No barcode constraint migration needed:", error.message);
   }
 };
 

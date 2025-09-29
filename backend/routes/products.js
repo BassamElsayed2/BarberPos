@@ -104,6 +104,11 @@ router.post("/", async (req, res) => {
       error.message.includes("UNIQUE constraint")
     ) {
       res.status(400).json({ error: "Barcode already exists" });
+    } else if (
+      error.code === "EREQUEST" &&
+      error.message.includes("Violation of UNIQUE KEY constraint")
+    ) {
+      res.status(400).json({ error: "Barcode already exists" });
     } else {
       res.status(500).json({ error: "Failed to add product" });
     }
@@ -149,6 +154,11 @@ router.put("/:id", async (req, res) => {
     if (
       error.code === "EREQUEST" &&
       error.message.includes("UNIQUE constraint")
+    ) {
+      res.status(400).json({ error: "Barcode already exists" });
+    } else if (
+      error.code === "EREQUEST" &&
+      error.message.includes("Violation of UNIQUE KEY constraint")
     ) {
       res.status(400).json({ error: "Barcode already exists" });
     } else {

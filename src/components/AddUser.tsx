@@ -95,7 +95,7 @@ const AddUser: React.FC = () => {
 
     try {
       // إرسال البيانات للخادم
-      const response = await fetch("http://103.195.102.76:4007/api/users", {
+      const response = await fetch("https://pos1.ens.eg/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
