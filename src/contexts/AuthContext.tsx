@@ -9,19 +9,7 @@ import React, {
 } from "react";
 
 const API_BASE_URL = (() => {
-  // Check if we're running on the production domain
-  if (
-    typeof window !== "undefined" &&
-    window.location.hostname === "pos1.ens.eg"
-  ) {
-    return "http://103.195.102.76:4007/api";
-  }
-  // Check environment variable as fallback
-  if (process.env.NODE_ENV === "production") {
-    return "http://103.195.102.76:4007/api";
-  }
-  // Default to localhost for development
-  return "http://localhost:4007/api";
+  "http://103.195.102.76:4007/api";
 })();
 
 interface User {
