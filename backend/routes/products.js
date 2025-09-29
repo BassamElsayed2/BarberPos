@@ -42,32 +42,10 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// GET /api/products/barcode/:barcode - Get product by barcode
-router.get("/barcode/:barcode", async (req, res) => {
-  try {
-    const { barcode } = req.params;
-    const pool = getPool();
-
-    const result = await pool
-      .request()
-      .input("barcode", sql.NVarChar(50), barcode)
-      .query("SELECT * FROM products WHERE barcode = @barcode");
-
-    if (result.recordset.length === 0) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    res.json(result.recordset[0]);
-  } catch (error) {
-    console.error("Error fetching product by barcode:", error);
-    res.status(500).json({ error: "Failed to fetch product" });
-  }
-});
-
 // POST /api/products - Add new product
 router.post("/", async (req, res) => {
   try {
-    const { name, price, barcode, category_id } = req.body;
+    const { name, price, category_id } = req.body;
 
     if (!name || price === undefined) {
       return res.status(400).json({ error: "Name and price are required" });
@@ -81,37 +59,22 @@ router.post("/", async (req, res) => {
       .input("id", sql.NVarChar(50), id)
       .input("name", sql.NVarChar(100), name)
       .input("price", sql.Decimal(10, 2), price)
-      .input("barcode", sql.NVarChar(50), barcode || null)
       .input("category_id", sql.NVarChar(50), category_id || null).query(`
-        INSERT INTO products (id, name, price, barcode, category_id, created_at, updated_at)
-        VALUES (@id, @name, @price, @barcode, @category_id, GETDATE(), GETDATE())
+        INSERT INTO products (id, name, price, category_id, created_at, updated_at)
+        VALUES (@id, @name, @price, @category_id, GETDATE(), GETDATE())
       `);
 
     res.status(201).json({
       id,
       name,
       price,
-      barcode,
       category_id,
-      stock: 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Error adding product:", error);
-    if (
-      error.code === "EREQUEST" &&
-      error.message.includes("UNIQUE constraint")
-    ) {
-      res.status(400).json({ error: "Barcode already exists" });
-    } else if (
-      error.code === "EREQUEST" &&
-      error.message.includes("Violation of UNIQUE KEY constraint")
-    ) {
-      res.status(400).json({ error: "Barcode already exists" });
-    } else {
-      res.status(500).json({ error: "Failed to add product" });
-    }
+    res.status(500).json({ error: "Failed to add product" });
   }
 });
 
@@ -119,7 +82,7 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, barcode, category_id } = req.body;
+    const { name, price, category_id } = req.body;
 
     const pool = getPool();
 
@@ -128,12 +91,10 @@ router.put("/:id", async (req, res) => {
       .input("id", sql.NVarChar(50), id)
       .input("name", sql.NVarChar(100), name)
       .input("price", sql.Decimal(10, 2), price)
-      .input("barcode", sql.NVarChar(50), barcode)
       .input("category_id", sql.NVarChar(50), category_id).query(`
         UPDATE products 
         SET name = @name,
             price = @price,
-            barcode = @barcode,
             category_id = @category_id,
             updated_at = GETDATE()
         WHERE id = @id
@@ -151,19 +112,7 @@ router.put("/:id", async (req, res) => {
     res.json(result.recordset[0]);
   } catch (error) {
     console.error("Error updating product:", error);
-    if (
-      error.code === "EREQUEST" &&
-      error.message.includes("UNIQUE constraint")
-    ) {
-      res.status(400).json({ error: "Barcode already exists" });
-    } else if (
-      error.code === "EREQUEST" &&
-      error.message.includes("Violation of UNIQUE KEY constraint")
-    ) {
-      res.status(400).json({ error: "Barcode already exists" });
-    } else {
-      res.status(500).json({ error: "Failed to update product" });
-    }
+    res.status(500).json({ error: "Failed to update product" });
   }
 });
 

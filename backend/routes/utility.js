@@ -108,13 +108,11 @@ router.post("/import", async (req, res) => {
           .input("id", sql.NVarChar(50), product.id)
           .input("name", sql.NVarChar(100), product.name)
           .input("price", sql.Decimal(10, 2), product.price)
-          .input("barcode", sql.NVarChar(50), product.barcode || null)
           .input("category_id", sql.NVarChar(50), product.category_id)
-          .input("stock", sql.Int, product.stock || 0)
           .input("created_at", sql.DateTime2, product.created_at)
           .input("updated_at", sql.DateTime2, product.updated_at).query(`
-            INSERT INTO products (id, name, price, barcode, category_id, stock, created_at, updated_at)
-            VALUES (@id, @name, @price, @barcode, @category_id, @stock, @created_at, @updated_at)
+            INSERT INTO products (id, name, price, category_id, created_at, updated_at)
+            VALUES (@id, @name, @price, @category_id, @created_at, @updated_at)
           `);
       }
     }

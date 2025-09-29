@@ -35,7 +35,6 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  barcode?: string;
 }
 
 const SalesInvoices = () => {
@@ -67,7 +66,6 @@ const SalesInvoices = () => {
         name: item.product_name,
         price: item.unit_price,
         quantity: item.quantity,
-        barcode: undefined, // We can add this if needed
       })),
     }));
   }, [sales, user]);

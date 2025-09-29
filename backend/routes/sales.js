@@ -89,16 +89,6 @@ router.post("/", async (req, res) => {
           INSERT INTO sale_items (id, sale_id, product_id, product_name, quantity, unit_price, total_price)
           VALUES (@id, @sale_id, @product_id, @product_name, @quantity, @unit_price, @total_price)
         `);
-
-      // Update product stock (subtract sold quantity)
-      await transaction
-        .request()
-        .input("product_id", sql.NVarChar(50), item.product_id)
-        .input("quantity", sql.Int, item.quantity).query(`
-          UPDATE products 
-          SET stock = stock - @quantity, updated_at = GETDATE()
-          WHERE id = @product_id
-        `);
     }
 
     await transaction.commit();

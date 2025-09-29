@@ -1,9 +1,9 @@
 // API-based database manager for SQL Server backend
 const API_BASE_URL = (() => {
   // Use environment variable or fallback to production URL
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // In browser, check if we're on production domain
-    if (window.location.hostname === 'pos1.ens.eg') {
+    if (window.location.hostname === "pos1.ens.eg") {
       return "https://pos1.ens.eg/api";
     }
     // For local development
@@ -27,9 +27,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  barcode?: string;
   category_id?: string;
-  stock?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -157,17 +155,6 @@ class ApiDatabaseManager {
     }
   }
 
-  async getProductByBarcode(barcode: string): Promise<Product | null> {
-    try {
-      return await this.makeRequest<Product>(`/products/barcode/${barcode}`);
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("404")) {
-        return null;
-      }
-      throw error;
-    }
-  }
-
   async addProduct(
     product: Omit<Product, "id" | "created_at" | "updated_at">
   ): Promise<Product> {
@@ -187,13 +174,6 @@ class ApiDatabaseManager {
   async deleteProduct(id: string): Promise<void> {
     await this.makeRequest(`/products/${id}`, {
       method: "DELETE",
-    });
-  }
-
-  async updateProductStock(id: string, newStock: number): Promise<void> {
-    await this.makeRequest(`/products/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ stock: newStock }),
     });
   }
 

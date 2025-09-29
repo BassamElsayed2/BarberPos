@@ -48,7 +48,6 @@ import {
 
 interface InvoiceItem {
   productName: string;
-  barcode: string;
   quantity: number;
   purchasePrice: number;
   salePrice: number;
@@ -70,7 +69,6 @@ const PurchaseInvoices = () => {
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
     {
       productName: "",
-      barcode: "",
       quantity: 0,
       purchasePrice: 0,
       salePrice: 0,
@@ -114,7 +112,6 @@ const PurchaseInvoices = () => {
       ...invoiceItems,
       {
         productName: "",
-        barcode: "",
         quantity: 0,
         purchasePrice: 0,
         salePrice: 0,
@@ -225,23 +222,6 @@ const PurchaseInvoices = () => {
           });
           return;
         }
-
-        // Check for duplicate barcodes in the same invoice
-        if (item.barcode && item.barcode.trim()) {
-          const duplicateBarcode = validItems.filter(
-            (otherItem, index) =>
-              otherItem.barcode === item.barcode &&
-              validItems.indexOf(item) !== index
-          );
-          if (duplicateBarcode.length > 0) {
-            toast({
-              title: "خطأ في البيانات",
-              description: `الباركود ${item.barcode} مكرر في نفس الفاتورة`,
-              variant: "destructive",
-            });
-            return;
-          }
-        }
       }
 
       // Create or find products and convert items to database format
@@ -252,16 +232,10 @@ const PurchaseInvoices = () => {
 
         // If no product ID, try to find existing product by name or create new one
         if (!productId) {
-          // First try to find by barcode if provided
-          let existingProduct = null;
-          if (item.barcode) {
-            existingProduct = products.find((p) => p.barcode === item.barcode);
-          }
-
-          // If not found by barcode, try to find by name
-          if (!existingProduct) {
-            existingProduct = products.find((p) => p.name === item.productName);
-          }
+          // Try to find by name
+          const existingProduct = products.find(
+            (p) => p.name === item.productName
+          );
 
           if (existingProduct) {
             productId = existingProduct.id;
@@ -270,26 +244,9 @@ const PurchaseInvoices = () => {
             try {
               const category = categories.find((c) => c.name === item.category);
 
-              // Check if barcode already exists
-              if (item.barcode && item.barcode.trim()) {
-                const existingBarcodeProduct = products.find(
-                  (p) => p.barcode === item.barcode
-                );
-                if (existingBarcodeProduct) {
-                  throw new Error(
-                    `الباركود ${item.barcode} موجود بالفعل للمنتج: ${existingBarcodeProduct.name}`
-                  );
-                }
-              }
-
               await addProduct({
                 name: item.productName,
                 price: item.salePrice || item.purchasePrice, // Use sale price or fallback to purchase price
-                stock: 0, // Start with 0 stock, will be updated by purchase
-                barcode:
-                  item.barcode && item.barcode.trim()
-                    ? item.barcode
-                    : undefined,
                 category_id: category?.id,
               });
 
@@ -368,7 +325,6 @@ const PurchaseInvoices = () => {
       setInvoiceItems([
         {
           productName: "",
-          barcode: "",
           quantity: 0,
           purchasePrice: 0,
           salePrice: 0,
@@ -493,7 +449,7 @@ const PurchaseInvoices = () => {
                           key={index}
                           className="p-4 bg-blue-50 border-blue-200"
                         >
-                          <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                             <div>
                               <Label>اسم المنتج</Label>
                               <Input
@@ -506,20 +462,6 @@ const PurchaseInvoices = () => {
                                   )
                                 }
                                 placeholder="اسم المنتج"
-                              />
-                            </div>
-                            <div>
-                              <Label>الباركود</Label>
-                              <Input
-                                value={item.barcode}
-                                onChange={(e) =>
-                                  updateInvoiceItem(
-                                    index,
-                                    "barcode",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="1234567890123"
                               />
                             </div>
                             <div>
@@ -883,10 +825,6 @@ const PurchaseInvoices = () => {
                       <TableRow key={index}>
                         <TableCell className="font-medium">
                           {item.product_name}
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-600">
-                          {products.find((p) => p.id === item.product_id)
-                            ?.barcode || "غير محدد"}
                         </TableCell>
                         <TableCell>
                           {(() => {

@@ -40,8 +40,6 @@ interface DatabaseContextType {
   ) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
-  getProductByBarcode: (barcode: string) => Promise<Product | null>;
-  updateProductStock: (id: string, newStock: number) => Promise<void>;
 
   // Sale operations
   addSale: (
@@ -208,31 +206,6 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     }
   };
 
-  const getProductByBarcode = async (
-    barcode: string
-  ): Promise<Product | null> => {
-    try {
-      return await dbManager.getProductByBarcode(barcode);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to get product by barcode"
-      );
-      return null;
-    }
-  };
-
-  const updateProductStock = async (id: string, newStock: number) => {
-    try {
-      await dbManager.updateProductStock(id, newStock);
-      await loadData();
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update product stock"
-      );
-      throw err;
-    }
-  };
-
   // Sale operations
   const addSale = async (
     sale: Omit<Sale, "id" | "created_at" | "updated_at">
@@ -383,8 +356,6 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     addProduct,
     updateProduct,
     deleteProduct,
-    getProductByBarcode,
-    updateProductStock,
 
     // Sale operations
     addSale,

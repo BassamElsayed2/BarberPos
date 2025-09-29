@@ -64,17 +64,11 @@ const createTables = async () => {
         id NVARCHAR(50) PRIMARY KEY,
         name NVARCHAR(100) NOT NULL,
         price DECIMAL(10,2) NOT NULL,
-        barcode NVARCHAR(50),
         category_id NVARCHAR(50),
-        stock INT DEFAULT 0,
         created_at DATETIME2 DEFAULT GETDATE(),
         updated_at DATETIME2 DEFAULT GETDATE(),
         FOREIGN KEY (category_id) REFERENCES categories (id)
       );
-
-      -- Create filtered unique index for barcode (allows multiple NULLs)
-      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_products_barcode_unique' AND object_id = OBJECT_ID('products'))
-      CREATE UNIQUE INDEX IX_products_barcode_unique ON products (barcode) WHERE barcode IS NOT NULL;
 
       -- Employees table
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='employees' AND xtype='U')
@@ -156,8 +150,8 @@ const createTables = async () => {
 
     await pool.request().query(createTablesSQL);
 
-    // Handle migration for existing databases with old barcode constraint
-    await migrateBarcodeConstraint();
+    // Handle migration for existing databases to remove barcode and stock columns
+    await migrateRemoveColumns();
 
     // Insert default data
     await insertDefaultData();
@@ -169,36 +163,60 @@ const createTables = async () => {
   }
 };
 
-const migrateBarcodeConstraint = async () => {
+const migrateRemoveColumns = async () => {
   try {
-    // Check if the old unique constraint exists and drop it
-    const constraintCheck = await pool.request().query(`
-      SELECT CONSTRAINT_NAME 
-      FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    // Check if barcode column exists and drop it
+    const barcodeCheck = await pool.request().query(`
+      SELECT COLUMN_NAME 
+      FROM INFORMATION_SCHEMA.COLUMNS 
       WHERE TABLE_NAME = 'products' 
-      AND CONSTRAINT_TYPE = 'UNIQUE' 
-      AND CONSTRAINT_NAME LIKE '%barcode%'
+      AND COLUMN_NAME = 'barcode'
     `);
 
-    if (constraintCheck.recordset.length > 0) {
-      console.log("🔄 Migrating barcode constraint to allow multiple NULLs...");
+    if (barcodeCheck.recordset.length > 0) {
+      console.log("🔄 Removing barcode column from products table...");
 
-      // Drop the old unique constraint
-      for (const constraint of constraintCheck.recordset) {
+      // Drop any indexes on barcode column first
+      const indexCheck = await pool.request().query(`
+        SELECT name 
+        FROM sys.indexes 
+        WHERE object_id = OBJECT_ID('products') 
+        AND name LIKE '%barcode%'
+      `);
+
+      for (const index of indexCheck.recordset) {
         await pool.request().query(`
-          ALTER TABLE products DROP CONSTRAINT ${constraint.CONSTRAINT_NAME}
+          DROP INDEX ${index.name} ON products
         `);
-        console.log(`✅ Dropped old constraint: ${constraint.CONSTRAINT_NAME}`);
+        console.log(`✅ Dropped index: ${index.name}`);
       }
 
-      // Create the new filtered unique index
+      // Drop the barcode column
       await pool.request().query(`
-        CREATE UNIQUE INDEX IX_products_barcode_unique ON products (barcode) WHERE barcode IS NOT NULL
+        ALTER TABLE products DROP COLUMN barcode
       `);
-      console.log("✅ Created new filtered unique index for barcode");
+      console.log("✅ Removed barcode column from products table");
+    }
+
+    // Check if stock column exists and drop it
+    const stockCheck = await pool.request().query(`
+      SELECT COLUMN_NAME 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = 'products' 
+      AND COLUMN_NAME = 'stock'
+    `);
+
+    if (stockCheck.recordset.length > 0) {
+      console.log("🔄 Removing stock column from products table...");
+
+      // Drop the stock column
+      await pool.request().query(`
+        ALTER TABLE products DROP COLUMN stock
+      `);
+      console.log("✅ Removed stock column from products table");
     }
   } catch (error) {
-    console.log("ℹ️  No barcode constraint migration needed:", error.message);
+    console.log("ℹ️  No column migration needed:", error.message);
   }
 };
 
@@ -231,11 +249,11 @@ const insertDefaultData = async () => {
       // This prevents adding products every time the server restarts
       console.log("📦 Inserting default products (first time setup)");
       await pool.request().query(`
-        INSERT INTO products (id, name, price, barcode, category_id) VALUES 
-          ('1', 'كوكا كولا', 2.5, '12345', '1'),
-          ('2', 'شيبس', 1.5, '67890', '2'),
-          ('3', 'شوكولاتة', 3.0, '11111', '3'),
-          ('4', 'عصير برتقال', 4.0, '22222', '1');
+        INSERT INTO products (id, name, price, category_id) VALUES 
+          ('1', 'كوكا كولا', 2.5, '1'),
+          ('2', 'شيبس', 1.5, '2'),
+          ('3', 'شوكولاتة', 3.0, '3'),
+          ('4', 'عصير برتقال', 4.0, '1');
       `);
     } else {
       console.log(

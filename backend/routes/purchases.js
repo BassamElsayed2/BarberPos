@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
         VALUES (@id, @invoice_number, @supplier_name, @total_amount, GETDATE(), GETDATE())
       `);
 
-    // Insert purchase items and update product stock
+    // Insert purchase items
     for (const item of items) {
       const itemId = `${purchaseId}_${item.product_id}`;
       await transaction
@@ -86,16 +86,6 @@ router.post("/", async (req, res) => {
         .input("total_price", sql.Decimal(10, 2), item.total_price).query(`
           INSERT INTO purchase_items (id, purchase_id, product_id, product_name, quantity, unit_price, total_price)
           VALUES (@id, @purchase_id, @product_id, @product_name, @quantity, @unit_price, @total_price)
-        `);
-
-      // Update product stock (add purchased quantity)
-      await transaction
-        .request()
-        .input("product_id", sql.NVarChar(50), item.product_id)
-        .input("quantity", sql.Int, item.quantity).query(`
-          UPDATE products 
-          SET stock = stock + @quantity, updated_at = GETDATE()
-          WHERE id = @product_id
         `);
     }
 

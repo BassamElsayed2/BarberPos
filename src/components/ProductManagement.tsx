@@ -63,8 +63,6 @@ const ProductManagement = () => {
       const productData = {
         name: formData.name,
         price: parseFloat(formData.price),
-        stock: 0,
-        barcode: undefined,
         category_id: formData.category || undefined,
       };
 
