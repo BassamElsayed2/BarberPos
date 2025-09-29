@@ -1,5 +1,9 @@
 const sql = require("mssql");
-require("dotenv").config({ path: "./config.prod.env" });
+
+// Load environment variables based on NODE_ENV
+const envFile =
+  process.env.NODE_ENV === "production" ? "./config.prod.env" : "./config.env";
+require("dotenv").config({ path: envFile });
 
 const config = {
   server: process.env.DB_SERVER,

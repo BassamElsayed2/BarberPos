@@ -1,6 +1,16 @@
 // API-based database manager for SQL Server backend
 const API_BASE_URL = (() => {
-  "http://103.195.102.76:4007/api";
+  // Use environment variable or fallback to production URL
+  if (typeof window !== 'undefined') {
+    // In browser, check if we're on production domain
+    if (window.location.hostname === 'pos1.ens.eg') {
+      return "https://pos1.ens.eg/api";
+    }
+    // For local development
+    return "http://localhost:4007/api";
+  }
+  // Fallback for server-side rendering
+  return "http://localhost:4007/api";
 })();
 
 // Types for our POS system (same as before)

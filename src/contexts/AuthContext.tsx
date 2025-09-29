@@ -9,7 +9,7 @@ import React, {
 } from "react";
 
 const API_BASE_URL = (() => {
-  "http://103.195.102.76:4007/api";
+  return "http://103.195.102.76:4007/api";
 })();
 
 interface User {

@@ -15,6 +15,10 @@ const utilityRoutes = require("./routes/utility");
 
 const app = express();
 const PORT = process.env.PORT || 4007;
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+console.log(`🌍 Environment: ${NODE_ENV}`);
+console.log(`🔧 Port: ${PORT}`);
 
 // Middleware
 app.use(helmet());
@@ -23,11 +27,14 @@ app.use(
     origin: [
       "http://localhost:8080",
       "http://localhost:5173",
+      "http://localhost:4006",
       "http://127.0.0.1:8080",
       "http://127.0.0.1:5173",
+      "http://127.0.0.1:4006",
       "https://pos1.ens.eg",
       "https://www.pos1.ens.eg",
       "http://103.195.102.76:4007",
+      "http://103.195.102.76:4006",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
