@@ -519,15 +519,13 @@ const EmployeeManagement = () => {
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-green-600" />
                           <span className="font-semibold text-green-700">
-                            {employee.salary.toLocaleString()} ريال
+                            {employee.salary.toLocaleString()} د.أ
                           </span>
                         </div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <Percent className="w-4 h-4 text-blue-500" />
                           <Badge
                             variant="outline"
                             className="bg-blue-50 text-blue-700 border-blue-200 font-medium"

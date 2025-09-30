@@ -340,7 +340,7 @@ const ReportsSection = () => {
                               <TableCell>{item.date}</TableCell>
                               <TableCell>{item.invoices}</TableCell>
                               <TableCell className="font-semibold text-blue-600">
-                                {item.total.toFixed(2)} درهم
+                                {item.total.toFixed(2)} د.أ
                               </TableCell>
                             </TableRow>
                           ))}
@@ -354,7 +354,7 @@ const ReportsSection = () => {
                           <XAxis dataKey="date" />
                           <YAxis />
                           <Tooltip
-                            formatter={(value) => [`${value} درهم`, "المبيعات"]}
+                            formatter={(value) => [`${value} د.أ`, "المبيعات"]}
                           />
                           <Bar dataKey="total" fill="#3B82F6" />
                         </BarChart>
@@ -405,7 +405,7 @@ const ReportsSection = () => {
                         <TableCell>{item.invoices}</TableCell>
                         <TableCell>{item.items}</TableCell>
                         <TableCell className="font-semibold text-green-600">
-                          {item.total.toFixed(2)} درهم
+                          {item.total.toFixed(2)} د.أ
                         </TableCell>
                       </TableRow>
                     ))}
@@ -441,16 +441,16 @@ const ReportsSection = () => {
                     <TableRow key={index}>
                       <TableCell>{item.date}</TableCell>
                       <TableCell className="text-blue-600">
-                        {item.sales.toFixed(2)} درهم
+                        {item.sales.toFixed(2)} د.أ
                       </TableCell>
                       <TableCell className="text-red-600">
-                        {item.purchases.toFixed(2)} درهم
+                        {item.purchases.toFixed(2)} د.أ
                       </TableCell>
                       <TableCell className="text-orange-600">
-                        {item.salaries.toFixed(2)} درهم
+                        {item.salaries.toFixed(2)} د.أ
                       </TableCell>
                       <TableCell className="font-semibold text-green-600">
-                        {item.profit.toFixed(2)} درهم
+                        {item.profit.toFixed(2)} د.أ
                       </TableCell>
                     </TableRow>
                   ))}
@@ -499,7 +499,7 @@ const ReportsSection = () => {
                         </TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell className="font-semibold text-blue-600">
-                          {item.revenue.toFixed(2)} درهم
+                          {item.revenue.toFixed(2)} د.أ
                         </TableCell>
                       </TableRow>
                     ))}
@@ -536,7 +536,7 @@ const ReportsSection = () => {
                       <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell className="font-semibold text-green-600">
-                        {item.cost.toFixed(2)} درهم
+                        {item.cost.toFixed(2)} د.أ
                       </TableCell>
                     </TableRow>
                   ))}
@@ -620,7 +620,7 @@ const ReportsSection = () => {
                         </TableCell>
                         <TableCell>{employee.phone}</TableCell>
                         <TableCell className="font-semibold text-green-600">
-                          {employee.salary.toFixed(2)} درهم
+                          {employee.salary.toFixed(2)} د.أ
                         </TableCell>
                         <TableCell className="font-semibold text-blue-600">
                           {employee.commission}%
@@ -733,7 +733,7 @@ const ReportsSection = () => {
                   {filteredSales
                     .reduce((sum, sale) => sum + sale.total_amount, 0)
                     .toFixed(2)}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <TrendingUp className="w-8 h-8 text-blue-500" />
@@ -764,7 +764,7 @@ const ReportsSection = () => {
                   {filteredPurchases
                     .reduce((sum, purchase) => sum + purchase.total_amount, 0)
                     .toFixed(2)}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <ShoppingCart className="w-8 h-8 text-purple-500" />
@@ -792,7 +792,7 @@ const ReportsSection = () => {
                       0
                     )
                   ).toFixed(2)}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-orange-500" />
@@ -823,7 +823,7 @@ const ReportsSection = () => {
                   {employees
                     .reduce((sum, employee) => sum + employee.salary, 0)
                     .toFixed(2)}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-cyan-500" />

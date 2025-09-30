@@ -564,7 +564,7 @@ const PurchaseInvoices = () => {
                     <div className="flex justify-between items-center text-lg font-bold">
                       <span>إجمالي الفاتورة:</span>
                       <span className="text-blue-600">
-                        {calculateTotal().toFixed(2)} درهم
+                        {calculateTotal().toFixed(2)} د.أ
                       </span>
                     </div>
                   </div>
@@ -625,7 +625,7 @@ const PurchaseInvoices = () => {
                   {purchaseInvoices
                     .reduce((sum, invoice) => sum + invoice.total_amount, 0)
                     .toFixed(2)}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <Building className="w-8 h-8 text-green-500" />
@@ -742,7 +742,7 @@ const PurchaseInvoices = () => {
                       </div>
                       <div className="text-left">
                         <div className="text-lg font-bold text-blue-600">
-                          {invoice.total_amount.toFixed(2)} درهم
+                          {invoice.total_amount.toFixed(2)} د.أ
                         </div>
                         <Button variant="ghost" size="sm" className="mt-1">
                           عرض التفاصيل
@@ -846,16 +846,16 @@ const PurchaseInvoices = () => {
                             ) : null;
                           })()}
                         </TableCell>
-                        <TableCell>{item.unit_price.toFixed(2)} درهم</TableCell>
+                        <TableCell>{item.unit_price.toFixed(2)} د.أ</TableCell>
                         <TableCell className="text-green-600 font-medium">
                           {products
                             .find((p) => p.id === item.product_id)
                             ?.price?.toFixed(2) || "0.00"}{" "}
-                          درهم
+                          د.أ
                         </TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell className="font-semibold">
-                          {item.total_price.toFixed(2)} درهم
+                          {item.total_price.toFixed(2)} د.أ
                         </TableCell>
                       </TableRow>
                     ))}
@@ -868,7 +868,7 @@ const PurchaseInvoices = () => {
                 <div className="flex justify-between items-center text-xl font-bold">
                   <span>المبلغ الإجمالي:</span>
                   <span className="text-blue-600">
-                    {selectedInvoice.total_amount.toFixed(2)} درهم
+                    {selectedInvoice.total_amount.toFixed(2)} د.أ
                   </span>
                 </div>
               </div>

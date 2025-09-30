@@ -296,7 +296,7 @@ const ProductManagement = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">السعر:</span>
                 <span className="font-bold text-blue-600">
-                  {product.price} درهم
+                  {product.price} د.أ
                 </span>
               </div>
               <div className="flex gap-2 pt-2">

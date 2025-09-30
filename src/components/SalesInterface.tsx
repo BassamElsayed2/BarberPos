@@ -22,6 +22,14 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Search,
   Trash2,
   Printer,
@@ -30,6 +38,9 @@ import {
   Percent,
   Plus,
   Edit3,
+  Calendar,
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDatabase } from "@/contexts/DatabaseContext";
@@ -60,9 +71,45 @@ const SalesInterface = () => {
   const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
   const [isEditTotalDialogOpen, setIsEditTotalDialogOpen] = useState(false);
   const [customTotal, setCustomTotal] = useState("");
+  const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
+  const [completedSale, setCompletedSale] = useState<Sale | null>(null);
   const { toast } = useToast();
   const { products, employees, addSale } = useDatabase();
   const { user } = useAuth();
+
+  const formatWhatsAppMessage = (sale: Sale) => {
+    const date = new Date(sale.created_at).toLocaleDateString("ar-SA");
+    const time = new Date(sale.created_at).toLocaleTimeString("ar-SA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    let message = `🧾 *فاتورة البيع*\n\n`;
+    message += `📋 رقم الفاتورة: ${sale.invoice_number}\n`;
+    message += `📅 التاريخ: ${date}\n`;
+    message += `🕐 الوقت: ${time}\n`;
+    message += `👤 الموظف: ${sale.employee_name}\n`;
+    message += `👨‍💼 البائع: ${sale.seller_user || "البائع الرئيسي"}\n\n`;
+    message += `📦 *تفاصيل المنتجات:*\n`;
+
+    sale.items.forEach((item, index) => {
+      message += `${index + 1}. ${item.product_name}\n`;
+      message += `   💰 السعر: ${item.unit_price.toFixed(2)} د.أ\n`;
+      message += `   📊 الكمية: ${item.quantity}\n`;
+      message += `   💵 الإجمالي: ${item.total_price.toFixed(2)} د.أ\n\n`;
+    });
+
+    message += `💰 *المبلغ الإجمالي: ${sale.total_amount.toFixed(2)} د.أ*\n\n`;
+    message += `شكراً لاختياركم خدماتنا! 🙏`;
+
+    return encodeURIComponent(message);
+  };
+
+  const sendToWhatsApp = (sale: Sale) => {
+    const message = formatWhatsAppMessage(sale);
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   const addToCart = (product: Product) => {
     if (!selectedEmployee) {
@@ -209,7 +256,7 @@ const SalesInterface = () => {
 
     toast({
       title: "تم تعديل المبلغ",
-      description: `تم تعديل المبلغ إلى ${newTotal.toFixed(2)} درهم`,
+      description: `تم تعديل المبلغ إلى ${newTotal.toFixed(2)} د.أ`,
     });
   };
 
@@ -260,12 +307,29 @@ const SalesInterface = () => {
 
       await addSale(sale);
 
+      // إنشاء كائن Sale للعرض في البوب أب
+      const saleForDisplay: Sale = {
+        id: `temp_${Date.now()}`, // معرف مؤقت
+        invoice_number: invoiceNumber,
+        total_amount: calculateTotal(),
+        employee_id: selectedEmployee?.id,
+        employee_name: selectedEmployee?.name,
+        seller_user: user?.username,
+        items: saleItems,
+        created_at: now.toISOString(),
+        updated_at: now.toISOString(),
+      };
+
       toast({
         title: "تمت عملية البيع بنجاح",
         description: `رقم الفاتورة: ${invoiceNumber} - المبلغ: ${calculateTotal().toFixed(
           2
-        )} درهم`,
+        )} د.أ`,
       });
+
+      // إظهار بوب أب الفاتورة
+      setCompletedSale(saleForDisplay);
+      setIsInvoiceDialogOpen(true);
 
       setCart([]);
     } catch (error) {
@@ -393,7 +457,7 @@ const SalesInterface = () => {
                         {product.name}
                       </h3>
                       <p className="text-lg font-bold text-blue-600 mb-2">
-                        {product.price} درهم
+                        {product.price} د.أ
                       </p>
                     </CardContent>
                   </Card>
@@ -444,11 +508,11 @@ const SalesInterface = () => {
                               <>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-sm text-gray-600">
-                                    السعر الأصلي: {item.originalPrice} درهم
+                                    السعر الأصلي: {item.originalPrice} د.أ
                                   </span>
                                   <span className="text-sm text-green-600">
                                     + عمولة: {item.commissionAmount.toFixed(2)}{" "}
-                                    درهم
+                                    د.أ
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2 mt-1">
@@ -462,11 +526,11 @@ const SalesInterface = () => {
                             {item.type === "service" && item.commission > 0 && (
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-sm text-gray-600">
-                                  السعر الأصلي: {item.originalPrice} درهم
+                                  السعر الأصلي: {item.originalPrice} د.أ
                                 </span>
                                 <span className="text-sm text-green-600">
                                   + عمولة: {item.commissionAmount.toFixed(2)}{" "}
-                                  درهم
+                                  د.أ
                                 </span>
                               </div>
                             )}
@@ -482,7 +546,7 @@ const SalesInterface = () => {
                         </div>
                         <div className="text-right">
                           <span className="text-lg font-bold text-blue-600">
-                            {item.price.toFixed(2)} درهم
+                            {item.price.toFixed(2)} د.أ
                           </span>
                         </div>
                       </div>
@@ -495,7 +559,7 @@ const SalesInterface = () => {
                     <div className="flex justify-between items-center text-lg font-bold">
                       <span>الإجمالي:</span>
                       <span className="text-blue-600">
-                        {calculateTotal().toFixed(2)} درهم
+                        {calculateTotal().toFixed(2)} د.أ
                       </span>
                     </div>
 
@@ -534,7 +598,7 @@ const SalesInterface = () => {
                             </div>
                             <div>
                               <Label htmlFor="service-price">
-                                سعر الخدمة (درهم)
+                                سعر الخدمة (د.أ)
                               </Label>
                               <Input
                                 id="service-price"
@@ -605,7 +669,7 @@ const SalesInterface = () => {
                           <div className="space-y-4">
                             <div>
                               <Label htmlFor="custom-total">
-                                المبلغ النهائي (درهم)
+                                المبلغ النهائي (د.أ)
                               </Label>
                               <Input
                                 id="custom-total"
@@ -615,7 +679,7 @@ const SalesInterface = () => {
                                 onChange={(e) => setCustomTotal(e.target.value)}
                                 placeholder={`المبلغ الحالي: ${calculateTotal().toFixed(
                                   2
-                                )} درهم`}
+                                )} د.أ`}
                               />
                             </div>
                           </div>
@@ -656,6 +720,133 @@ const SalesInterface = () => {
           </Card>
         </div>
       </div>
+
+      {/* Invoice Details Dialog */}
+      <Dialog open={isInvoiceDialogOpen} onOpenChange={setIsInvoiceDialogOpen}>
+        <DialogContent
+          className="max-w-4xl max-h-[90vh] overflow-y-auto"
+          dir="ltr"
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Receipt className="w-5 h-5" />
+              فاتورة البيع - {completedSale?.invoice_number}
+            </DialogTitle>
+          </DialogHeader>
+
+          {completedSale && (
+            <div className="space-y-6">
+              {/* Invoice Header */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-green-50 rounded-lg">
+                <div>
+                  <span className="text-sm text-gray-600">رقم الفاتورة</span>
+                  <p className="font-semibold">
+                    {completedSale.invoice_number}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">التاريخ</span>
+                  <p className="font-semibold">
+                    {new Date(completedSale.created_at).toLocaleDateString(
+                      "ar-SA"
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">الوقت</span>
+                  <p className="font-semibold">
+                    {new Date(completedSale.created_at).toLocaleTimeString(
+                      "ar-SA",
+                      { hour: "2-digit", minute: "2-digit" }
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">البائع</span>
+                  <p className="font-semibold">
+                    {completedSale.seller_user ||
+                      completedSale.employee_name ||
+                      "البائع الرئيسي"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Invoice Items */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">تفاصيل المنتجات</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">المنتج</TableHead>
+                      <TableHead className="text-right">السعر</TableHead>
+                      <TableHead className="text-right">الإجمالي</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {completedSale.items.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium text-right">
+                          {item.product_name}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {item.unit_price.toFixed(2)} د.أ
+                        </TableCell>
+                        <TableCell className="font-semibold text-right">
+                          {item.total_price.toFixed(2)} د.أ
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Employee Info */}
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center text-xl font-bold">
+                  <span>الموظف:</span>
+                  <span className="text-blue-600">
+                    {completedSale.employee_name}
+                  </span>
+                </div>
+              </div>
+
+              {/* Invoice Total */}
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center text-xl font-bold">
+                  <span>المبلغ الإجمالي:</span>
+                  <span className="text-green-600">
+                    {completedSale.total_amount.toFixed(2)} د.أ
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-4">
+                <Button className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500">
+                  <Printer className="w-4 h-4 mr-2" />
+                  طباعة الفاتورة
+                </Button>
+                <Button
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                  onClick={() => sendToWhatsApp(completedSale)}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  إرسال للواتساب
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsInvoiceDialogOpen(false);
+                    setCompletedSale(null);
+                  }}
+                >
+                  إغلاق
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

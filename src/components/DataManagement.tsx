@@ -295,16 +295,14 @@ const DataManagement = () => {
               <div className="text-2xl font-bold text-emerald-600">
                 {stats.totalSales.toFixed(2)}
               </div>
-              <div className="text-sm text-gray-600">
-                إجمالي المبيعات (درهم)
-              </div>
+              <div className="text-sm text-gray-600">إجمالي المبيعات (د.أ)</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">
                 {stats.totalPurchases.toFixed(2)}
               </div>
               <div className="text-sm text-gray-600">
-                إجمالي المشتريات (درهم)
+                إجمالي المشتريات (د.أ)
               </div>
             </div>
           </div>

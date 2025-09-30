@@ -25,6 +25,7 @@ import {
   RefreshCw,
   TrendingUp,
   DollarSign,
+  MessageCircle,
 } from "lucide-react";
 import { useDatabase } from "@/contexts/DatabaseContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -44,6 +45,39 @@ const SalesInvoices = () => {
 
   const { sales, refreshData } = useDatabase();
   const { user } = useAuth();
+
+  const formatWhatsAppMessage = (sale: Sale) => {
+    const date = new Date(sale.created_at).toLocaleDateString("ar-SA");
+    const time = new Date(sale.created_at).toLocaleTimeString("ar-SA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    let message = `🧾 *فاتورة Masrawy*\n\n`;
+    message += `📋 رقم الفاتورة: ${sale.invoice_number}\n`;
+    message += `📅 التاريخ: ${date}\n`;
+    message += `🕐 الوقت: ${time}\n`;
+    message += `👤 الموظف: ${sale.employee_name}\n`;
+    message += `👨‍💼 البائع: ${sale.seller_user || "البائع الرئيسي"}\n\n`;
+    message += `📦 *تفاصيل :*\n`;
+
+    sale.items.forEach((item, index) => {
+      message += `${index + 1}. ${item.product_name}\n`;
+      message += `   💰 السعر: ${item.unit_price.toFixed(2)} د.أ\n`;
+      message += `   💵 الإجمالي: ${item.total_price.toFixed(2)} د.أ\n\n`;
+    });
+
+    message += `💰 *المبلغ الإجمالي: ${sale.total_amount.toFixed(2)} د.أ*\n\n`;
+    message += `شكراً لاختياركم خدماتنا في مصراوي! 🙏`;
+
+    return encodeURIComponent(message);
+  };
+
+  const sendToWhatsApp = (sale: Sale) => {
+    const message = formatWhatsAppMessage(sale);
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   // Convert database sales to display format
   const salesInvoices = useMemo(() => {
@@ -118,7 +152,7 @@ const SalesInvoices = () => {
                   {salesInvoices
                     .reduce((sum, invoice) => sum + invoice.total_amount, 0)
                     .toFixed(2)}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <TrendingUp className="w-8 h-8 text-green-500" />
@@ -144,7 +178,7 @@ const SalesInvoices = () => {
                         ) / salesInvoices.length
                       ).toFixed(2)
                     : "0.00"}{" "}
-                  درهم
+                  د.أ
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-purple-500" />
@@ -237,7 +271,7 @@ const SalesInvoices = () => {
                       </div>
                       <div className="text-left">
                         <div className="text-lg font-bold text-blue-600">
-                          {invoice.total_amount.toFixed(2)} درهم
+                          {invoice.total_amount.toFixed(2)} د.أ
                         </div>
                         <Button variant="ghost" size="sm" className="mt-1">
                           عرض التفاصيل
@@ -321,11 +355,11 @@ const SalesInvoices = () => {
                           {item.product_name}
                         </TableCell>
                         <TableCell className="text-right">
-                          {item.unit_price.toFixed(2)} درهم
+                          {item.unit_price.toFixed(2)} د.أ
                         </TableCell>
 
                         <TableCell className="font-semibold text-right">
-                          {item.total_price.toFixed(2)} درهم
+                          {item.total_price.toFixed(2)} د.أ
                         </TableCell>
                       </TableRow>
                     ))}
@@ -348,7 +382,7 @@ const SalesInvoices = () => {
                 <div className="flex justify-between items-center text-xl font-bold">
                   <span>المبلغ الإجمالي:</span>
                   <span className="text-blue-600">
-                    {selectedInvoice.total_amount.toFixed(2)} درهم
+                    {selectedInvoice.total_amount.toFixed(2)} د.أ
                   </span>
                 </div>
               </div>
@@ -358,6 +392,13 @@ const SalesInvoices = () => {
                 <Button className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500">
                   <Printer className="w-4 h-4 mr-2" />
                   طباعة الفاتورة
+                </Button>
+                <Button
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                  onClick={() => sendToWhatsApp(selectedInvoice)}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  إرسال للواتساب
                 </Button>
                 <Button
                   variant="outline"
