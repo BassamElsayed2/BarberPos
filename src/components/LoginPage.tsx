@@ -26,17 +26,17 @@ const LoginPage: React.FC = () => {
 
     // التحقق من صحة البيانات
     if (!username.trim()) {
-      setError("يرجى إدخال اسم المستخدم");
+      setError("⚠️ يرجى إدخال اسم المستخدم");
       return;
     }
 
     if (!password.trim()) {
-      setError("يرجى إدخال كلمة المرور");
+      setError("⚠️ يرجى إدخال كلمة المرور");
       return;
     }
 
     if (password.length < 6) {
-      setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      setError("⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل");
       return;
     }
 
@@ -45,10 +45,11 @@ const LoginPage: React.FC = () => {
     try {
       const success = await login(username.trim(), password);
       if (!success) {
-        setError("اسم المستخدم أو كلمة المرور غير صحيحة");
+        setError("❌ اسم المستخدم أو كلمة المرور غير صحيحة");
       }
     } catch (err) {
-      setError("حدث خطأ أثناء تسجيل الدخول");
+      console.error("Login error:", err);
+      setError("❌ حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,8 +78,12 @@ const LoginPage: React.FC = () => {
                   type="text"
                   placeholder="أدخل اسم المستخدم"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    if (error) setError(""); // مسح رسالة الخطأ عند البدء بالكتابة
+                  }}
                   className="pl-10"
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -92,19 +97,36 @@ const LoginPage: React.FC = () => {
                   type="password"
                   placeholder="أدخل كلمة المرور"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError(""); // مسح رسالة الخطأ عند البدء بالكتابة
+                  }}
                   className="pl-10"
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
 
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert
+                variant="destructive"
+                className="border-red-500 bg-red-50 text-red-700 animate-in slide-in-from-top-2 duration-300"
+              >
+                <AlertDescription className="font-medium flex items-center gap-2">
+                  {error}
+                </AlertDescription>
               </Alert>
             )}
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className={`w-full transition-all duration-200 ${
+                isSubmitting
+                  ? "opacity-75 cursor-not-allowed"
+                  : "hover:bg-blue-700 hover:shadow-lg"
+              }`}
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -115,23 +137,6 @@ const LoginPage: React.FC = () => {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-medium text-sm text-gray-700 mb-2">
-              حسابات تجريبية:
-            </h4>
-            <div className="space-y-1 text-xs text-gray-600">
-              <div>
-                <strong>مدير:</strong> admin / password123
-              </div>
-              <div>
-                <strong>موظف:</strong> employee / password123
-              </div>
-              <div>
-                <strong>مدير فرع:</strong> manager / password123
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

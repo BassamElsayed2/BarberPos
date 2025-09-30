@@ -105,6 +105,19 @@ const EmployeeManagement = () => {
       return;
     }
 
+    // فحص رقم الهاتف قبل الإرسال
+    const phoneExists = employees.some(
+      (emp) => emp.phone === formData.phone.trim()
+    );
+    if (phoneExists) {
+      toast({
+        title: "خطأ",
+        description: "❌ رقم الهاتف موجود مسبقاً. يرجى استخدام رقم هاتف آخر",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate numeric inputs
     const salary = parseFloat(formData.salary);
     const commission = parseFloat(formData.commission);
@@ -146,8 +159,13 @@ const EmployeeManagement = () => {
       let errorMessage = "فشل في إضافة الموظف";
 
       if (error instanceof Error) {
-        if (error.message.includes("UNIQUE constraint failed")) {
-          errorMessage = "رقم الهاتف موجود مسبقاً";
+        if (
+          error.message.includes("UNIQUE constraint failed") ||
+          error.message.includes("Phone number already exists") ||
+          error.message.includes("رقم الهاتف موجود مسبقاً")
+        ) {
+          errorMessage =
+            "❌ رقم الهاتف موجود مسبقاً. يرجى استخدام رقم هاتف آخر";
         } else {
           errorMessage = error.message;
         }
@@ -172,6 +190,20 @@ const EmployeeManagement = () => {
       toast({
         title: "خطأ",
         description: "يرجى ملء جميع الحقول المطلوبة",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // فحص رقم الهاتف قبل الإرسال (استثناء الموظف الحالي)
+    const phoneExists = employees.some(
+      (emp) =>
+        emp.phone === formData.phone.trim() && emp.id !== editingEmployee.id
+    );
+    if (phoneExists) {
+      toast({
+        title: "خطأ",
+        description: "❌ رقم الهاتف موجود مسبقاً. يرجى استخدام رقم هاتف آخر",
         variant: "destructive",
       });
       return;
@@ -219,8 +251,13 @@ const EmployeeManagement = () => {
       let errorMessage = "فشل في تحديث بيانات الموظف";
 
       if (error instanceof Error) {
-        if (error.message.includes("UNIQUE constraint failed")) {
-          errorMessage = "رقم الهاتف موجود مسبقاً";
+        if (
+          error.message.includes("UNIQUE constraint failed") ||
+          error.message.includes("Phone number already exists") ||
+          error.message.includes("رقم الهاتف موجود مسبقاً")
+        ) {
+          errorMessage =
+            "❌ رقم الهاتف موجود مسبقاً. يرجى استخدام رقم هاتف آخر";
         } else {
           errorMessage = error.message;
         }
@@ -330,6 +367,7 @@ const EmployeeManagement = () => {
                     setFormData({ ...formData, phone: e.target.value })
                   }
                   placeholder="أدخل رقم الهاتف"
+                  className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
@@ -586,6 +624,7 @@ const EmployeeManagement = () => {
                   setFormData({ ...formData, phone: e.target.value })
                 }
                 placeholder="أدخل رقم الهاتف"
+                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>

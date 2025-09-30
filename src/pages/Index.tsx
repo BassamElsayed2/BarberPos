@@ -76,7 +76,7 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Smoking & Sins
+                  Masrawy
                 </h1>
                 <p className="text-sm text-gray-600">
                   إدارة ذكية للمبيعات والمخزون

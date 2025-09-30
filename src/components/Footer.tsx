@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-center">
           <p className="text-sm text-gray-600 text-center" dir="rtl">
-            تصميم وبرمجه Ens
+            تصميم وبرمجه <a href="https://www.ens.eg">Ens</a>
           </p>
         </div>
       </div>

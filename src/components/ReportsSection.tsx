@@ -132,8 +132,14 @@ const ReportsSection = () => {
   const profitReportData = useMemo(() => {
     const profitByDate = new Map<
       string,
-      { sales: number; purchases: number; profit: number }
+      { sales: number; purchases: number; salaries: number; profit: number }
     >();
+
+    // Calculate total salaries for all employees
+    const totalSalaries = employees.reduce(
+      (sum, employee) => sum + employee.salary,
+      0
+    );
 
     // Add sales data
     filteredSales.forEach((sale) => {
@@ -141,6 +147,7 @@ const ReportsSection = () => {
       const existing = profitByDate.get(date) || {
         sales: 0,
         purchases: 0,
+        salaries: 0,
         profit: 0,
       };
       profitByDate.set(date, {
@@ -155,6 +162,7 @@ const ReportsSection = () => {
       const existing = profitByDate.get(date) || {
         sales: 0,
         purchases: 0,
+        salaries: 0,
         profit: 0,
       };
       profitByDate.set(date, {
@@ -163,16 +171,17 @@ const ReportsSection = () => {
       });
     });
 
-    // Calculate profit
+    // Calculate profit (sales - purchases - salaries)
     return Array.from(profitByDate.entries())
       .map(([date, data]) => ({
         date,
         sales: data.sales,
         purchases: data.purchases,
-        profit: data.sales - data.purchases,
+        salaries: totalSalaries,
+        profit: data.sales - data.purchases - totalSalaries,
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [filteredSales, filteredPurchases]);
+  }, [filteredSales, filteredPurchases, employees]);
 
   // Generate top selling products
   const topSellingProducts = useMemo(() => {
@@ -423,6 +432,7 @@ const ReportsSection = () => {
                     <TableHead className="text-right">التاريخ</TableHead>
                     <TableHead className="text-right">المبيعات</TableHead>
                     <TableHead className="text-right">المشتريات</TableHead>
+                    <TableHead className="text-right">الرواتب</TableHead>
                     <TableHead className="text-right">صافي الربح</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -435,6 +445,9 @@ const ReportsSection = () => {
                       </TableCell>
                       <TableCell className="text-red-600">
                         {item.purchases.toFixed(2)} درهم
+                      </TableCell>
+                      <TableCell className="text-orange-600">
+                        {item.salaries.toFixed(2)} درهم
                       </TableCell>
                       <TableCell className="font-semibold text-green-600">
                         {item.profit.toFixed(2)} درهم
@@ -772,6 +785,10 @@ const ReportsSection = () => {
                     ) -
                     filteredPurchases.reduce(
                       (sum, purchase) => sum + purchase.total_amount,
+                      0
+                    ) -
+                    employees.reduce(
+                      (sum, employee) => sum + employee.salary,
                       0
                     )
                   ).toFixed(2)}{" "}

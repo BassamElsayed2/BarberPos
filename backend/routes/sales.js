@@ -38,7 +38,8 @@ router.get("/", async (req, res) => {
 
 // POST /api/sales - Add new sale
 router.post("/", async (req, res) => {
-  const transaction = getPool().transaction();
+  const pool = getPool();
+  const transaction = pool.transaction();
 
   try {
     const {
@@ -58,7 +59,6 @@ router.post("/", async (req, res) => {
 
     await transaction.begin();
 
-    const pool = getPool();
     const saleId = Date.now().toString();
 
     // Insert sale

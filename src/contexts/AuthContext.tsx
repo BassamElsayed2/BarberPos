@@ -45,8 +45,10 @@ const authenticateUser = async (
 
     if (!response.ok) {
       if (response.status === 401) {
+        console.log("Authentication failed: Invalid credentials");
         return null; // Invalid credentials
       }
+      console.error(`Authentication failed with status: ${response.status}`);
       throw new Error(`Authentication failed: ${response.status}`);
     }
 

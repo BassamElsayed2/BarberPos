@@ -312,6 +312,7 @@ router.post("/authenticate", async (req, res) => {
       `);
 
     if (result.recordset.length === 0) {
+      console.log(`Authentication failed: User '${username}' not found`);
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -321,6 +322,9 @@ router.post("/authenticate", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      console.log(
+        `Authentication failed: Invalid password for user '${username}'`
+      );
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
